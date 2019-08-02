@@ -2,6 +2,10 @@
     text-decoration: underline;
 }
 
+.deleter{
+    border: none; 
+}
+
 .set-control {
     margin: .5rem;
 }

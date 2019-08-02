@@ -83,7 +83,11 @@ export default class WorkoutDb {
                         if (m){
                         m = m[1]; 
                         if(m === name){
+                            try{
                             workouts.push({key: k, value: JSON.parse(v)})
+                            } catch(e){
+                                console.log('error with data: ', e)
+                            }
                         }
                     }
                         it.next(fn)
@@ -103,13 +107,56 @@ export default class WorkoutDb {
 
     async renameMuscleGroup(workoutName: string, desiredMuscleGroupName: string) : Promise<void>{
         let workouts = await this.getWorkoutsByName(workoutName);
-        let ops :any[]  = []
-         workouts.map(x => {
+       
+        let ops : any[]= workouts.map(x => {
             let newDoc = Object.assign({}, x.value); 
             newDoc.muscleGroup = desiredMuscleGroupName; 
-            ops.push({type: 'put', key: x.key, value: newDoc})
+            return {type: 'put', key: x.key, value: newDoc}
          })
          this.level.batch(ops)
          return 
+    }
+
+    async deleteWorkout(workoutName: string) : Promise<void>{
+        let db = this.level
+        let it = db.iterator({ values: false, keyAsBuffer: false, gte: workoutName   })
+        
+        let p = new Promise<{type: string, key: string}[]>((resolve, reject) => {
+            let deleteList :{type: string, key: string}[]= []; 
+            let fn = (e: any, k: any, v: any) => {
+                if (e) {
+                    console.log('Received an error', e)
+                    it.end(() => {
+                        console.log('Iterator ended.')
+                        return reject(e)
+                    })
+                } else {
+                    if(k) {
+                        let m = k.match(re)
+                        if (m && m[1]){
+                            if (m[1] === workoutName){
+                                console.log('found key ', m[1], 'Adding to list ')
+                                deleteList.push({type: 'del', key: k})
+                            }
+                           
+                        }
+                        
+                        it.next(fn)
+                    } else {
+                        it.end(() => {
+                            console.log('Successfully fetched keys.')
+                            return resolve(deleteList)
+                        })
+                    }
+                }
+            }
+            it.next(fn)
+        })
+        let result = await p
+        console.log('result = ', result)
+        
+
+       await this.level.batch(result as any[]); 
+       console.log('finished batch delete')
     }
 }

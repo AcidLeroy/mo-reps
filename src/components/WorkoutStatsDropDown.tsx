@@ -49,9 +49,10 @@ class WorkoutStatsDropDown extends Component<Props, State> {
             let totalReps = R.reduce((a: any, b :any) => a+b.reps, 0, this.props.workouts)
             
 
-            let avg = R.reduce((a: any, b: any)=>  a + (b.weight! * b.reps!), 
+            let sum = R.reduce((a: any, b: any)=>  a + (b.weight! * b.reps!), 
                 0, this.props.workouts)
-            avg = avg/totalReps; 
+            console.log('total reps = ', totalReps, ' sum = ', sum)
+            let avg = sum/totalReps; 
             let dates = R.sort((a: any, b: any) => a - b, R.map(R.prop('date'), this.props.workouts))
             let now = moment()
             let maxDate = moment.unix(dates[dates.length - 1] / 1000)

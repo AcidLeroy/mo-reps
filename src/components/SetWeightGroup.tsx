@@ -45,7 +45,7 @@ class SetWeightGroup extends Component<Props, State> {
     }
 
     saveWorkout(event: any) {
-        this.props.saveWorkout(this.props.id, this.state.weight, this.state.reps)
+        this.props.saveWorkout(this.props.id, Number(this.state.weight), Number(this.state.reps))
     }
 
     componentDidUpdate(prevProps: Props, prevState: State, snapshot: any) {
@@ -61,8 +61,10 @@ class SetWeightGroup extends Component<Props, State> {
                 <div className="column has-text-centered is-paddingless" >
                     <span className="title ">Set {this.props.id}</span>
                 </div>
+
+                
                 <div className="column">
-                    <span>Weight (lbs)</span>
+                    <label>Weight (lbs)</label>
                     <input className="input box" type="text"
                         value={this.state.weight} onChange={this.updateWeight} onFocus={this.weightOnFocus}></input>
                 </div>
@@ -76,8 +78,9 @@ class SetWeightGroup extends Component<Props, State> {
                         onClick={this.saveWorkout}>
                         Save
                     </button>
-
                 </div>
+                
+
             </div>
             </div>
         )
