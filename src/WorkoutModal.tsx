@@ -46,7 +46,6 @@ class WorkoutModal extends Component<Props, State> {
     async saveWorkout(id: number, weight: number, reps: number) {
         let sets = this.state.sets;
 
-
         let set = sets[id];
         set.value.reps = reps;
         set.value.weight = weight;
