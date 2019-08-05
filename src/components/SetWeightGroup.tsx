@@ -56,7 +56,36 @@ class SetWeightGroup extends Component<Props, State> {
 
     render() {
         return (
-            <div className="box is-paddingless">
+            <div className="field is-grouped-multiline box">
+                    <div className="subtitle">Set {this.props.id}</div>
+                    <div className="field">
+                    <label className="label">Weight (lbs)</label>
+                    <div className="control">
+                        <input className="input" type="text" placeholder="e.g. 25"
+                            value={this.state.weight} onChange={this.updateWeight} onFocus={this.weightOnFocus} />
+                    </div>
+                    </div>
+             
+                    <div className="field">
+
+                    <label className="label">Number of Reps</label>
+                    <div className="control">
+                        <input className="input" type="text" placeholder="e.g. 25"
+                            value={this.state.reps} onChange={this.updateReps} onFocus={this.repsOnFocus} />
+                    </div>
+                    </div>
+
+              
+                    <div className="field">
+                    <div className="control">
+                        <button className="is-link button" onClick={this.saveWorkout}>Save</button>
+                    </div>
+                    </div>
+
+
+            </div>
+
+            /* <div className="box is-paddingless">
             <div className="columns box has-background-grey-lighter is-vcentered">
                 <div className="column has-text-centered is-paddingless" >
                     <span className="title ">Set {this.props.id}</span>
@@ -82,7 +111,7 @@ class SetWeightGroup extends Component<Props, State> {
                 
 
             </div>
-            </div>
+            </div> */
         )
     }
 }

@@ -60,7 +60,7 @@ class WorkoutModal extends Component<Props, State> {
                     muscleGroup: this.state.muscleGroup,
                     set: sets.length,
                     units: "lbs",
-                    name: this.props.workoutName || "unkown"
+                    name: this.props.workoutName || "unknown"
                 }
             })
             this.setState({ sets: sets })
@@ -101,7 +101,7 @@ class WorkoutModal extends Component<Props, State> {
                                 muscleGroup: x[0].value.muscleGroup || "unknown",
                                 set: 1,
                                 units: "lbs",
-                                name: this.props.workoutName || "unkown"
+                                name: this.props.workoutName || "unknown"
                             }
                         }]
                     })
@@ -137,8 +137,7 @@ class WorkoutModal extends Component<Props, State> {
                 <div className="modal-content">
                     <div className="container">
                         <div className="box">
-                            <div className="container ">
-
+                         
                                 <div className="columns">
                                     <div className="column">
                                         <h1 className="title has-text-centered workout-title">
@@ -159,16 +158,16 @@ class WorkoutModal extends Component<Props, State> {
                                             <WorkoutStatsDropDown workouts={this.state.workouts} />
                                         </div>
 
-
                                     </div>
                                 </div>
 
                                 {this.state.sets.map((v, idx) => {
                                     let i = this.state.sets.length - idx - 1;
-                                    return <SetWeightGroup key={i} id={i} saveWorkout={this.saveWorkout} name={this.props.workoutName || "unknown"} />
+                                    return <SetWeightGroup key={i} id={i} saveWorkout={this.saveWorkout} 
+                                        name={this.props.workoutName || "unknown"} />
                                 })}
 
-                            </div>
+                         
                         </div>
 
                     </div>
