@@ -4,7 +4,7 @@ import 'bulma/css/bulma.css'
 
 interface Props {
     id: number,
-    name: string, 
+    name: string,
     saveWorkout: (setNumber: number, weight: number, reps: number) => void
 }
 
@@ -24,16 +24,16 @@ class SetWeightGroup extends Component<Props, State> {
         this.updateReps = this.updateReps.bind(this);
         this.updateWeight = this.updateWeight.bind(this);
         this.saveWorkout = this.saveWorkout.bind(this);
-        this.weightOnFocus = this.weightOnFocus.bind(this); 
-        this.repsOnFocus = this.repsOnFocus.bind(this); 
+        this.weightOnFocus = this.weightOnFocus.bind(this);
+        this.repsOnFocus = this.repsOnFocus.bind(this);
     }
 
     weightOnFocus(event: any) {
-        event.target.select(); 
+        event.target.select();
     }
 
     repsOnFocus(event: any) {
-        event.target.select(); 
+        event.target.select();
     }
 
     updateReps(event: any) {
@@ -49,69 +49,40 @@ class SetWeightGroup extends Component<Props, State> {
     }
 
     componentDidUpdate(prevProps: Props, prevState: State, snapshot: any) {
-        if (prevProps.name !== this.props.name){
-            this.setState({reps: 0, weight: 0})
+        if (prevProps.name !== this.props.name) {
+            this.setState({ reps: 0, weight: 0 })
         }
     }
 
     render() {
         return (
             <div className="field is-grouped-multiline box">
-                    <div className="subtitle">Set {this.props.id}</div>
-                    <div className="field">
+                <div className="subtitle">Set {this.props.id}</div>
+                <div className="field">
                     <label className="label">Weight (lbs)</label>
                     <div className="control">
                         <input className="input" type="text" placeholder="e.g. 25"
                             value={this.state.weight} onChange={this.updateWeight} onFocus={this.weightOnFocus} />
                     </div>
-                    </div>
-             
-                    <div className="field">
+                </div>
+
+                <div className="field">
 
                     <label className="label">Number of Reps</label>
                     <div className="control">
                         <input className="input" type="text" placeholder="e.g. 25"
                             value={this.state.reps} onChange={this.updateReps} onFocus={this.repsOnFocus} />
                     </div>
-                    </div>
+                </div>
 
-              
-                    <div className="field">
+
+                <div className="field">
                     <div className="control">
                         <button className="is-link button" onClick={this.saveWorkout}>Save</button>
                     </div>
-                    </div>
-
+                </div>
 
             </div>
-
-            /* <div className="box is-paddingless">
-            <div className="columns box has-background-grey-lighter is-vcentered">
-                <div className="column has-text-centered is-paddingless" >
-                    <span className="title ">Set {this.props.id}</span>
-                </div>
-
-                
-                <div className="column">
-                    <label>Weight (lbs)</label>
-                    <input className="input box" type="text"
-                        value={this.state.weight} onChange={this.updateWeight} onFocus={this.weightOnFocus}></input>
-                </div>
-                <div className="column">
-                    <span>Number of Reps</span>
-                    <input className="input box" type="text"
-                        value={this.state.reps} onChange={this.updateReps} onFocus={this.repsOnFocus}></input>
-                </div>
-                <div className="column has-text-centered is-marginless">
-                    <button className="button is-primary set-control "
-                        onClick={this.saveWorkout}>
-                        Save
-                    </button>
-                </div>
-                
-
-            </div>
-            </div> */
         )
     }
 }

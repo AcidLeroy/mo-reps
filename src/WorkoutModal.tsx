@@ -1,45 +1,55 @@
 import React, { Component } from 'react';
-import { UserSession } from 'blockstack'
 import 'bulma/css/bulma.css'
 import WorkoutDocument from './WorkoutDocument';
-import WorkoutDb from './WorkoutDb';
 import SetWeightGroup from './components/SetWeightGroup'
 import './WorkoutModal.css'
 import EditableMuscleGroup from './components/EditableMuscleGroup'
 import WorkoutStatsDropDown from './components/WorkoutStatsDropDown'
-import * as R from 'ramda'
+import {generateWorkoutKey} from './WorkoutDb'
+const R = require('ramda')
 
 interface Props {
-    userSession: UserSession,
-    workoutName: string | null,
+    workouts: {key: string | null, value: WorkoutDocument}[], 
     isActive: boolean,
-    workoutDb: WorkoutDb
-    toggleActive: () => void
+    workoutName: string, 
+    toggleActive: () => void, 
+    deleteAll: () => void, 
+    saveWorkout: (workout: {key: string | null, value: WorkoutDocument}) => void, 
+    updateMuscleGroup: (workoutName: string, newMuscleGroup : string) =>void
 }
 
 
 interface State {
-    muscleGroup: string,
     sets: { key: string | null, value: WorkoutDocument }[],
-    workouts: WorkoutDocument[]
 }
 
 class WorkoutModal extends Component<Props, State> {
     constructor(props: Readonly<Props>) {
         super(props)
         this.state = {
-            muscleGroup: "Some group",
             sets: [{
                 key: null,
                 value: {}
             }],
-            workouts: []
         }
         this.saveWorkout = this.saveWorkout.bind(this);
-        this.updateMuscleGroup = this.updateMuscleGroup.bind(this);
         this.refreshWorkout = this.refreshWorkout.bind(this);
-        this.updateStats = this.updateStats.bind(this);
-        this.deleteAll = this.deleteAll.bind(this); 
+        this.getMuscleGroup = this.getMuscleGroup.bind(this); 
+        this.getWorkoutsByType = this.getWorkoutsByType.bind(this); 
+    }
+
+    getMuscleGroup() : string {
+        let workout = R.find((x: {key: string | null, value: WorkoutDocument}) => x.value.name===this.props.workoutName)(this.props.workouts)
+        if(workout && workout.value && workout.value.muscleGroup) return workout.value.muscleGroup 
+        else return "unknown"
+    }
+
+    getWorkoutsByType() {
+        console.log('workout name', this.props.workoutName)
+        let matching =  R.filter((x: {key: string | null, value: WorkoutDocument}) =>{ return x.value.name === this.props.workoutName}, this.props.workouts)
+        let a =  R.map(R.prop('value'), matching)
+        console.log('workout modal getWorkoutsByType = ', a)
+        return a
     }
 
 
@@ -49,15 +59,18 @@ class WorkoutModal extends Component<Props, State> {
         let set = sets[id];
         set.value.reps = reps;
         set.value.weight = weight;
-        let key = await this.props.workoutDb.saveWorkout(null, set.value)
-        set.key = key;
+        set.value.date = Date.now(); 
+
+        set.key = (set.key === null) ? generateWorkoutKey(this.props.workoutName) : set.key;
+        this.props.saveWorkout(set); 
+
         this.setState({ sets: sets })
 
-        if (sets[sets.length - 1].key != null) {
+        if (sets[sets.length - 1].key !== null) {
             sets.push({
                 key: null,
                 value: {
-                    muscleGroup: this.state.muscleGroup,
+                    muscleGroup: this.getMuscleGroup(),
                     set: sets.length,
                     units: "lbs",
                     name: this.props.workoutName || "unknown"
@@ -65,62 +78,38 @@ class WorkoutModal extends Component<Props, State> {
             })
             this.setState({ sets: sets })
         }
-        this.updateStats()
     }
 
-    updateMuscleGroup(newMuscleGroup: string) {
-        this.setState({ muscleGroup: newMuscleGroup })
-        this.props.workoutDb.renameMuscleGroup(this.props.workoutName || "unkown", newMuscleGroup)
-            .then(this.refreshWorkout)
-    }
 
-    updateStats() {
-        if (this.props.workoutName) {
-            this.props.workoutDb.getWorkoutsByName(this.props.workoutName).then(x => {
-                this.setState({ workouts: R.map(R.prop('value'), x) })
-            })
-        }
-    }
-
-    deleteAll() {
-        if (this.props.workoutName){
-            this.props.workoutDb.deleteWorkout(this.props.workoutName).then(() => {
-                console.log('Successfully deleted workout: ', this.props.workoutName)
-                this.props.toggleActive(); 
-            })
-        }
-    }
 
     refreshWorkout() {
+        console.log('modal workout name = ', this.props.workoutName)
         if (this.props.workoutName) {
-            this.props.workoutDb.getWorkoutsByName(this.props.workoutName).then(x => {
-                if (x.length > 0) {
-                    this.setState({
-                        sets: [{
-                            key: null, value: {
-                                muscleGroup: x[0].value.muscleGroup || "unknown",
-                                set: 1,
-                                units: "lbs",
-                                name: this.props.workoutName || "unknown"
-                            }
-                        }]
-                    })
-                    this.setState({ muscleGroup: x[0].value.muscleGroup || "unknown" })
-                    this.updateStats();
-                } else {
-                    this.setState({
-                        sets: [{
-                            key: null, value: {
-                                muscleGroup: "unknown",
-                                set: 1,
-                                units: "lbs",
-                                name: this.props.workoutName || "unknown"
-                            }
-                        }]
-                    })
-                    this.setState({ muscleGroup: "unknown" })
-                }
-            })
+            if (this.getWorkoutsByType() > 0) {
+                this.setState({
+                    sets: [{
+                        key: null, value: {
+                            muscleGroup: this.getMuscleGroup() || "unknown",
+                            set: 1,
+                            units: "lbs",
+                            name: this.props.workoutName || "unknown"
+                        }
+                    }]
+                })
+
+            } else {
+                this.setState({
+                    sets: [{
+                        key: null, value: {
+                            muscleGroup: "unknown",
+                            set: 1,
+                            units: "lbs",
+                            name: this.props.workoutName || "unknown"
+                        }
+                    }]
+                })
+            }
+
         }
     }
 
@@ -142,7 +131,7 @@ class WorkoutModal extends Component<Props, State> {
                                     <div className="column">
                                         <h1 className="title has-text-centered workout-title">
                                             {this.props.workoutName ? this.props.workoutName : "No workout chosen"}
-                                            <button className="button deleter" onClick={this.deleteAll}>
+                                            <button className="button deleter" onClick={this.props.deleteAll}>
                                                 <span className="icon is-medium has-text-danger">
                                                     <i className="fas fa-times"></i>
                                                 </span>
@@ -151,11 +140,12 @@ class WorkoutModal extends Component<Props, State> {
                                         </h1>
 
                                         <div className="column">
-                                            <EditableMuscleGroup muscleGroup={this.state.muscleGroup} updateGroup={this.updateMuscleGroup} />
+                                            <EditableMuscleGroup muscleGroup={this.getMuscleGroup()} 
+                                            updateGroup={(newName: string) => this.props.updateMuscleGroup(this.props.workoutName, newName)} />
                                         </div>
 
                                         <div className="columns ">
-                                            <WorkoutStatsDropDown workouts={this.state.workouts} />
+                                            <WorkoutStatsDropDown workouts={this.getWorkoutsByType()} />
                                         </div>
 
                                     </div>

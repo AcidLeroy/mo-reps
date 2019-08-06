@@ -41,8 +41,17 @@ class WorkoutStatsDropDown extends Component<Props, State> {
             }
         } 
         if (!R.equals(this.props.workouts, prevProps.workouts)) {
-            if (this.props.workouts.length <= 0) return; 
-            console.log('workouts = ', this.props.workouts)
+            if (this.props.workouts.length <= 0){
+                this.setState({
+                    isExpanded: false,
+                    maxWeight: 0,
+                    daysSinceLastSet: "",
+                    daysSinceMax: "",
+                    totalSets: 0,
+                    averageWeight: 0
+                })
+                return ;
+            }; 
             let weights = R.map(R.prop('weight'), this.props.workouts)
 
             let max = R.reduce(R.max, 0, weights);
