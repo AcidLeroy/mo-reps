@@ -186,46 +186,57 @@ class Main extends Component<Props, State> {
           </div>
 
           <div className="container has-text-centered">
-            <span className="is-size-3 has-text-primary"><b>Welcome {this.state.person.name()}!</b></span>
+            <span className="is-size-3 has-text-primary"><b> {this.state.person.name()}!</b></span>
           </div>
 
-          <div className="container has-text-centered">
-            <div className="tile is-ancestor">
-              <div className="tile is-parent is-vertical">
-                <div className="tile is-child is primary box has-background-light">
+          <div className="columns has-text-centered is-multiline">
+            <div className="column is-full">
                   <p className="title"> Enter a workout </p>
-
+              </div>
+              <div className="column is-full">
+                  
                   {this.state.loading? (
-                    <div className="level">
-                    <p className="level-item">Syncing with Gaia...</p>
-                    <progress className="progress is-large is-primary level-item" max="100">15%</progress>
+                   <div>
+                    <p >Syncing with Gaia...</p>
+                    <progress className="progress is-large is-primary" max="100">15%</progress>
+                   
                     </div>
                   ) : null}
-                  <input className="input box" type="text" value={this.state.workoutToMatch} onChange={this.updateWordToMatch} placeholder="Workout name, e.g. Squat"></input>
+                  </div>
+                  <div className="column is-full">
+                  <div className="field">
+                    <div className="control">
+                    <input className="input" type="text" value={this.state.workoutToMatch} onChange={this.updateWordToMatch} placeholder="Workout name, e.g. Squat"></input>
+                    </div>
+                    </div>
                   {this.getMatches().map(x => {
                     return (
-                      <div key={x} className="container box is-paddingless">
+                      <div className="field">
+                      <div className="control">
                         <button className="button is-fullwidth is-primary" key={x} value={x} onClick={this.selectWorkout}> {x} </button>
-                      </div>
+                     </div>
+                     </div>
                     )
                   })}
 
                   {
                     (this.state.uniqueWorkouts.length === 0 || (this.state.workoutToMatch !== "" && (typeof (R.find(R.propEq('name', this.state.workoutToMatch))(this.state.workoutDb)) === 'undefined'))) ? (
+                     <div className="field">
+                     <div className="control">
                       <button className="button is-fullwidth is-primary" value={this.state.workoutToMatch} onClick={this.selectWorkout}>
                         <span className="icon">
                           <i className="fas fa-plus-circle"></i>
                         </span>
                         <span>Add New Workout</span>
                       </button>
+                      </div>
+                      </div>
                     ) : (
                         null
                       )
                   }
-                </div>
               </div>
             </div>
-          </div>
         </section>
 
       </div>
