@@ -195,6 +195,12 @@ class Main extends Component<Props, State> {
                 <div className="tile is-child is primary box has-background-light">
                   <p className="title"> Enter a workout </p>
 
+                  {this.state.loading? (
+                    <div className="level">
+                    <p className="level-item">Syncing with Gaia...</p>
+                    <progress className="progress is-large is-primary level-item" max="100">15%</progress>
+                    </div>
+                  ) : null}
                   <input className="input box" type="text" value={this.state.workoutToMatch} onChange={this.updateWordToMatch} placeholder="Workout name, e.g. Squat"></input>
                   {this.getMatches().map(x => {
                     return (

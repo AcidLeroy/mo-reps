@@ -45,10 +45,8 @@ class WorkoutModal extends Component<Props, State> {
     }
 
     getWorkoutsByType() {
-        console.log('workout name', this.props.workoutName)
         let matching =  R.filter((x: {key: string | null, value: WorkoutDocument}) =>{ return x.value.name === this.props.workoutName}, this.props.workouts)
         let a =  R.map(R.prop('value'), matching)
-        console.log('workout modal getWorkoutsByType = ', a)
         return a
     }
 
