@@ -11,8 +11,8 @@ import levelup, { LevelUp } from 'levelup'
 import WorkoutModal from './WorkoutModal'
 import WorkoutDb from './WorkoutDb'
 import WorkoutDocument from './WorkoutDocument';
-import { eventNames } from 'cluster';
 
+const Fuse = require('fuse.js'); 
 
 const R = require('ramda')
 
@@ -37,6 +37,8 @@ interface State {
 }
 
 class Main extends Component<Props, State> {
+
+  options: any; 
   constructor(props: Readonly<Props>) {
     super(props)
 
@@ -59,6 +61,16 @@ class Main extends Component<Props, State> {
     this.deleteWorkoutByName = this.deleteWorkoutByName.bind(this);
     this.saveWorkout = this.saveWorkout.bind(this); 
     this.updateMuscleGroup = this.updateMuscleGroup.bind(this); 
+     this.options = {
+      shouldSort: true,
+      threshold: 0.6,
+      location: 0,
+      distance: 100,
+      maxPatternLength: 32,
+      minMatchCharLength: 1,
+ 
+    };
+    
   }
 
   updateMuscleGroup(workoutName: string, newMuscleGroup: string) {
@@ -125,7 +137,7 @@ class Main extends Component<Props, State> {
 
   updateWordToMatch(event: any) {
     let workoutToMatch = event.target.value;
-    this.setState({ workoutToMatch: workoutToMatch })
+    this.setState({ workoutToMatch: workoutToMatch})
   }
 
   toggleWorkoutModal() {
@@ -143,11 +155,22 @@ class Main extends Component<Props, State> {
 
   getMatches() : any[] {
 
-    let matches = R.filter(
-      R.startsWith(R.toLower(this.state.workoutToMatch)), 
-      this.state.uniqueWorkouts
-    )
-    return matches
+    if (this.state.workoutToMatch.trim() === "") return this.state.uniqueWorkouts; 
+
+    var fuse = new Fuse(this.state.uniqueWorkouts, this.options); 
+    let a = fuse.search(this.state.workoutToMatch.trim())
+    console.log('a = ', a)
+    return R.map((x: number) => this.state.uniqueWorkouts[x].trim(), a)  
+  
+  }
+
+  isWorkoutInDb() : boolean {
+    for (let i= 0; i < this.state.workouts.length; i++) {
+      if (this.state.workouts[i].value.name!.trim() === this.state.workoutToMatch.trim()){
+        return true; 
+      }
+    }
+    return false
   }
 
   componentDidMount() {
@@ -180,7 +203,6 @@ class Main extends Component<Props, State> {
                 deleteAll={() => {this.deleteWorkoutByName(this.state.selectedWorkoutName)}}
                 saveWorkout={this.saveWorkout}
                 updateMuscleGroup={this.updateMuscleGroup}
-
                 />
 
           </div>
@@ -220,10 +242,10 @@ class Main extends Component<Props, State> {
                   })}
 
                   {
-                    (this.state.uniqueWorkouts.length === 0 || (this.state.workoutToMatch !== "" && (typeof (R.find(R.propEq('name', this.state.workoutToMatch))(this.state.workoutDb)) === 'undefined'))) ? (
+                    (this.state.uniqueWorkouts.length === 0 || (this.state.workoutToMatch.trim() !== "" && !this.isWorkoutInDb())) ? (
                      <div className="field">
                      <div className="control">
-                      <button className="button is-fullwidth is-primary" value={this.state.workoutToMatch} onClick={this.selectWorkout}>
+                      <button className="button is-fullwidth is-primary" value={this.state.workoutToMatch.trim()} onClick={this.selectWorkout}>
                         <span className="icon">
                           <i className="fas fa-plus-circle"></i>
                         </span>

@@ -21,6 +21,8 @@ interface Props {
 
 interface State {
     sets: { key: string | null, value: WorkoutDocument }[],
+    muscleGroup: string
+
 }
 
 class WorkoutModal extends Component<Props, State> {
@@ -31,6 +33,7 @@ class WorkoutModal extends Component<Props, State> {
                 key: null,
                 value: {}
             }],
+            muscleGroup: "unknown"
         }
         this.saveWorkout = this.saveWorkout.bind(this);
         this.refreshWorkout = this.refreshWorkout.bind(this);
@@ -41,7 +44,7 @@ class WorkoutModal extends Component<Props, State> {
     getMuscleGroup() : string {
         let workout = R.find((x: {key: string | null, value: WorkoutDocument}) => x.value.name===this.props.workoutName)(this.props.workouts)
         if(workout && workout.value && workout.value.muscleGroup) return workout.value.muscleGroup 
-        else return "unknown"
+        else return this.state.muscleGroup; 
     }
 
     getWorkoutsByType() {
@@ -58,8 +61,10 @@ class WorkoutModal extends Component<Props, State> {
         set.value.reps = reps;
         set.value.weight = weight;
         set.value.date = Date.now(); 
+        set.value.muscleGroup = this.getMuscleGroup(); 
+        const name = this.props.workoutName.trim(); 
 
-        set.key = (set.key === null) ? generateWorkoutKey(this.props.workoutName) : set.key;
+        set.key = (set.key === null) ? generateWorkoutKey(name) : set.key;
         this.props.saveWorkout(set); 
 
         this.setState({ sets: sets })
@@ -79,27 +84,28 @@ class WorkoutModal extends Component<Props, State> {
     }
 
 
-
     refreshWorkout() {
         console.log('modal workout name = ', this.props.workoutName)
+        this.setState({muscleGroup: "unknown"})
         if (this.props.workoutName) {
             if (this.getWorkoutsByType() > 0) {
                 this.setState({
                     sets: [{
                         key: null, value: {
-                            muscleGroup: this.getMuscleGroup() || "unknown",
+                            muscleGroup: this.getMuscleGroup(),
                             set: 1,
                             units: "lbs",
                             name: this.props.workoutName || "unknown"
                         }
-                    }]
+                    }], 
+                
                 })
 
             } else {
                 this.setState({
                     sets: [{
                         key: null, value: {
-                            muscleGroup: "unknown",
+                            muscleGroup: this.getMuscleGroup(),
                             set: 1,
                             units: "lbs",
                             name: this.props.workoutName || "unknown"
@@ -139,7 +145,10 @@ class WorkoutModal extends Component<Props, State> {
 
                                         <div className="column">
                                             <EditableMuscleGroup muscleGroup={this.getMuscleGroup()} 
-                                            updateGroup={(newName: string) => this.props.updateMuscleGroup(this.props.workoutName, newName)} />
+                                            updateGroup={(newName: string) => {
+                                                this.setState({muscleGroup: newName})
+                                                return this.props.updateMuscleGroup(this.props.workoutName, newName)} 
+                                            }/>
                                         </div>
 
                                         <div className="columns ">
