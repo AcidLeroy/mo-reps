@@ -159,7 +159,6 @@ class Main extends Component<Props, State> {
 
     var fuse = new Fuse(this.state.uniqueWorkouts, this.options); 
     let a = fuse.search(this.state.workoutToMatch.trim())
-    console.log('a = ', a)
     return R.map((x: number) => this.state.uniqueWorkouts[x].trim(), a)  
   
   }
@@ -208,7 +207,7 @@ class Main extends Component<Props, State> {
           </div>
 
           <div className="container has-text-centered">
-            <span className="is-size-3 has-text-primary"><b> {this.state.person.name()}!</b></span>
+            <span className="is-size-3"><b>{this.state.person.name()}</b></span>
           </div>
 
           <div className="columns has-text-centered is-multiline">
