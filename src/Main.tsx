@@ -12,13 +12,13 @@ import WorkoutModal from './WorkoutModal'
 import WorkoutDb from './WorkoutDb'
 import WorkoutDocument from './WorkoutDocument';
 
-const Fuse = require('fuse.js'); 
+const Fuse = require('fuse.js');
 
 const R = require('ramda')
 
 const re = /(.*)(-.+){5}/
 
-const USE_MOCK = false;
+const USE_MOCK = true;
 
 interface Props {
   userSession: UserSession
@@ -38,7 +38,7 @@ interface State {
 
 class Main extends Component<Props, State> {
 
-  options: any; 
+  options: any;
   constructor(props: Readonly<Props>) {
     super(props)
 
@@ -59,43 +59,43 @@ class Main extends Component<Props, State> {
     this.toggleWorkoutModal = this.toggleWorkoutModal.bind(this);
     this.selectWorkout = this.selectWorkout.bind(this);
     this.deleteWorkoutByName = this.deleteWorkoutByName.bind(this);
-    this.saveWorkout = this.saveWorkout.bind(this); 
-    this.updateMuscleGroup = this.updateMuscleGroup.bind(this); 
-     this.options = {
+    this.saveWorkout = this.saveWorkout.bind(this);
+    this.updateMuscleGroup = this.updateMuscleGroup.bind(this);
+    this.options = {
       shouldSort: true,
       threshold: 0.6,
       location: 0,
       distance: 100,
       maxPatternLength: 32,
       minMatchCharLength: 1,
- 
+
     };
-    
+
   }
 
   updateMuscleGroup(workoutName: string, newMuscleGroup: string) {
-    let workouts = this.state.workouts.map(w =>{
+    let workouts = this.state.workouts.map(w => {
       if (w.key === null) return w
       else {
         let m = w.key.match(re)
-        if (m && m[1]){
-          if (m[1] === workoutName){
-            w.value.muscleGroup = newMuscleGroup; 
+        if (m && m[1]) {
+          if (m[1] === workoutName) {
+            w.value.muscleGroup = newMuscleGroup;
           }
         }
-        return w; 
+        return w;
       }
     })
-    this.setState({workouts: workouts})
-    this.setState({loading: true})
+    this.setState({ workouts: workouts })
+    this.setState({ loading: true })
     this.state.workoutDb.renameMuscleGroup(workoutName, newMuscleGroup).then(x => {
       console.log('finished updating the muscle group for ', workoutName)
-      this.setState({loading: false})
+      this.setState({ loading: false })
     })
   }
 
   deleteWorkoutByName(name: string | null) {
-    if (name === null) return 
+    if (name === null) return
     this.setState({ loading: true })
     this.state.workoutDb.deleteWorkout(name).then(() => {
       console.log('Successfully deleted workout: ', name)
@@ -116,8 +116,8 @@ class Main extends Component<Props, State> {
     this.toggleWorkoutModal()
   }
 
-  saveWorkout(workout: {key: string |null , value: WorkoutDocument}){
-    if (workout.key === null) return  
+  saveWorkout(workout: { key: string | null, value: WorkoutDocument }) {
+    if (workout.key === null) return
     let db = this.state.workoutDb
     let workouts = this.state.workouts
     let found = R.find(R.propEq('key', workout.key))(workouts)
@@ -126,25 +126,25 @@ class Main extends Component<Props, State> {
     } else {
       workouts.push(workout)
     }
-    this.setState({workouts: this.state.workouts})
-    this.setState({loading: true})
+    this.setState({ workouts: this.state.workouts })
+    this.setState({ loading: true })
     db.saveWorkout(workout.key, workout.value).then(() => {
-      this.setState({loading: false})
+      this.setState({ loading: false })
     }).catch(e => {
-      this.setState({loading: false})
-    }) 
+      this.setState({ loading: false })
+    })
   }
 
   updateWordToMatch(event: any) {
     let workoutToMatch = event.target.value;
-    this.setState({ workoutToMatch: workoutToMatch})
+    this.setState({ workoutToMatch: workoutToMatch })
   }
 
   toggleWorkoutModal() {
     this.setState({ workoutModalActive: !this.state.workoutModalActive })
     let vals = R.map(R.prop('value'), this.state.workouts)
     let unique = R.uniq(R.map(R.prop('name'), vals))
-    this.setState({uniqueWorkouts: unique})
+    this.setState({ uniqueWorkouts: unique })
   }
 
   selectWorkout(event: any) {
@@ -153,20 +153,20 @@ class Main extends Component<Props, State> {
 
   }
 
-  getMatches() : any[] {
+  getMatches(): any[] {
 
-    if (this.state.workoutToMatch.trim() === "") return this.state.uniqueWorkouts; 
+    if (this.state.workoutToMatch.trim() === "") return this.state.uniqueWorkouts;
 
-    var fuse = new Fuse(this.state.uniqueWorkouts, this.options); 
+    var fuse = new Fuse(this.state.uniqueWorkouts, this.options);
     let a = fuse.search(this.state.workoutToMatch.trim())
-    return R.map((x: number) => this.state.uniqueWorkouts[x].trim(), a)  
-  
+    return R.map((x: number) => this.state.uniqueWorkouts[x].trim(), a)
+
   }
 
-  isWorkoutInDb() : boolean {
-    for (let i= 0; i < this.state.workouts.length; i++) {
-      if (this.state.workouts[i].value.name!.trim() === this.state.workoutToMatch.trim()){
-        return true; 
+  isWorkoutInDb(): boolean {
+    for (let i = 0; i < this.state.workouts.length; i++) {
+      if (this.state.workouts[i].value.name!.trim() === this.state.workoutToMatch.trim()) {
+        return true;
       }
     }
     return false
@@ -194,70 +194,74 @@ class Main extends Component<Props, State> {
         <section className="section">
 
           <div className="container">
-            <WorkoutModal 
-                workoutName={this.state.selectedWorkoutName || "unknown"} 
-                isActive={this.state.workoutModalActive} 
-                toggleActive={this.toggleWorkoutModal} 
-                workouts={this.state.workouts}
-                deleteAll={() => {this.deleteWorkoutByName(this.state.selectedWorkoutName)}}
-                saveWorkout={this.saveWorkout}
-                updateMuscleGroup={this.updateMuscleGroup}
-                />
+            <WorkoutModal
+              workoutName={this.state.selectedWorkoutName || "unknown"}
+              isActive={this.state.workoutModalActive}
+              toggleActive={this.toggleWorkoutModal}
+              workouts={this.state.workouts}
+              deleteAll={() => { this.deleteWorkoutByName(this.state.selectedWorkoutName) }}
+              saveWorkout={this.saveWorkout}
+              updateMuscleGroup={this.updateMuscleGroup}
+            />
 
           </div>
 
-          <div className="container has-text-centered">
+          <div className="container has-text-centered ">
             <span className="is-size-3"><b>{this.state.person.name()}</b></span>
           </div>
 
-          <div className="columns has-text-centered is-multiline">
+          <div className="columns has-text-centered is-multiline is-centered">
             <div className="column is-full">
-                  <p className="title"> Enter a workout </p>
+              <p className="title">Enter a workout </p>
+            </div>
+            <div className="column is-full is-two-thirds-desktop">
+
+              {this.state.loading ? (
+                <div>
+                  <p >Syncing with Gaia...</p>
+                  <progress className="progress is-large is-primary" max="100">15%</progress>
+
+                </div>
+              ) : null}
+            </div>
+            <div className="column is-full is-two-thirds-desktop">
+
+
+              <div className="field">
+                <div className="control">
+                  <input className="input" type="text" value={this.state.workoutToMatch} onChange={this.updateWordToMatch} placeholder="Workout name, e.g. Squat"></input>
+                </div>
               </div>
-              <div className="column is-full">
-                  
-                  {this.state.loading? (
-                   <div>
-                    <p >Syncing with Gaia...</p>
-                    <progress className="progress is-large is-primary" max="100">15%</progress>
-                   
-                    </div>
-                  ) : null}
-                  </div>
-                  <div className="column is-full">
+
+              {
+                (this.state.uniqueWorkouts.length === 0 || (this.state.workoutToMatch.trim() !== "" && !this.isWorkoutInDb())) ? (
                   <div className="field">
                     <div className="control">
-                    <input className="input" type="text" value={this.state.workoutToMatch} onChange={this.updateWordToMatch} placeholder="Workout name, e.g. Squat"></input>
-                    </div>
-                    </div>
-                  {this.getMatches().map(x => {
-                    return (
-                      <div className="field">
-                      <div className="control">
-                        <button className="button is-fullwidth is-primary" key={x} value={x} onClick={this.selectWorkout}> {x} </button>
-                     </div>
-                     </div>
-                    )
-                  })}
-
-                  {
-                    (this.state.uniqueWorkouts.length === 0 || (this.state.workoutToMatch.trim() !== "" && !this.isWorkoutInDb())) ? (
-                     <div className="field">
-                     <div className="control">
                       <button className="button is-fullwidth is-primary" value={this.state.workoutToMatch.trim()} onClick={this.selectWorkout}>
                         <span className="icon">
                           <i className="fas fa-plus-circle"></i>
                         </span>
                         <span>Add New Workout</span>
                       </button>
-                      </div>
-                      </div>
-                    ) : (
-                        null
-                      )
-                  }
-              </div>
+                    </div>
+                  </div>
+                ) : (
+                    null
+                  )
+              }
+
+              {this.getMatches().map(x => {
+                return (
+                  <div className="field"  key={x}>
+                    <div className="control">
+                      <button className="button is-fullwidth is-primary" key={x} value={x} onClick={this.selectWorkout}> {x} </button>
+                    </div>
+                  </div>
+                )
+              })}
+
             </div>
+          </div>
         </section>
 
       </div>

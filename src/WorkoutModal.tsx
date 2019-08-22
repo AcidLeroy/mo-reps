@@ -5,17 +5,17 @@ import SetWeightGroup from './components/SetWeightGroup'
 import './WorkoutModal.css'
 import EditableMuscleGroup from './components/EditableMuscleGroup'
 import WorkoutStatsDropDown from './components/WorkoutStatsDropDown'
-import {generateWorkoutKey} from './WorkoutDb'
+import { generateWorkoutKey } from './WorkoutDb'
 const R = require('ramda')
 
 interface Props {
-    workouts: {key: string | null, value: WorkoutDocument}[], 
+    workouts: { key: string | null, value: WorkoutDocument }[],
     isActive: boolean,
-    workoutName: string, 
-    toggleActive: () => void, 
-    deleteAll: () => void, 
-    saveWorkout: (workout: {key: string | null, value: WorkoutDocument}) => void, 
-    updateMuscleGroup: (workoutName: string, newMuscleGroup : string) =>void
+    workoutName: string,
+    toggleActive: () => void,
+    deleteAll: () => void,
+    saveWorkout: (workout: { key: string | null, value: WorkoutDocument }) => void,
+    updateMuscleGroup: (workoutName: string, newMuscleGroup: string) => void
 }
 
 
@@ -37,19 +37,19 @@ class WorkoutModal extends Component<Props, State> {
         }
         this.saveWorkout = this.saveWorkout.bind(this);
         this.refreshWorkout = this.refreshWorkout.bind(this);
-        this.getMuscleGroup = this.getMuscleGroup.bind(this); 
-        this.getWorkoutsByType = this.getWorkoutsByType.bind(this); 
+        this.getMuscleGroup = this.getMuscleGroup.bind(this);
+        this.getWorkoutsByType = this.getWorkoutsByType.bind(this);
     }
 
-    getMuscleGroup() : string {
-        let workout = R.find((x: {key: string | null, value: WorkoutDocument}) => x.value.name===this.props.workoutName)(this.props.workouts)
-        if(workout && workout.value && workout.value.muscleGroup) return workout.value.muscleGroup 
-        else return this.state.muscleGroup; 
+    getMuscleGroup(): string {
+        let workout = R.find((x: { key: string | null, value: WorkoutDocument }) => x.value.name === this.props.workoutName)(this.props.workouts)
+        if (workout && workout.value && workout.value.muscleGroup) return workout.value.muscleGroup
+        else return this.state.muscleGroup;
     }
 
     getWorkoutsByType() {
-        let matching =  R.filter((x: {key: string | null, value: WorkoutDocument}) =>{ return x.value.name === this.props.workoutName}, this.props.workouts)
-        let a =  R.map(R.prop('value'), matching)
+        let matching = R.filter((x: { key: string | null, value: WorkoutDocument }) => { return x.value.name === this.props.workoutName }, this.props.workouts)
+        let a = R.map(R.prop('value'), matching)
         return a
     }
 
@@ -60,12 +60,12 @@ class WorkoutModal extends Component<Props, State> {
         let set = sets[id];
         set.value.reps = reps;
         set.value.weight = weight;
-        set.value.date = Date.now(); 
-        set.value.muscleGroup = this.getMuscleGroup(); 
-        const name = this.props.workoutName.trim(); 
+        set.value.date = Date.now();
+        set.value.muscleGroup = this.getMuscleGroup();
+        const name = this.props.workoutName.trim();
 
         set.key = (set.key === null) ? generateWorkoutKey(name) : set.key;
-        this.props.saveWorkout(set); 
+        this.props.saveWorkout(set);
 
         this.setState({ sets: sets })
 
@@ -86,7 +86,7 @@ class WorkoutModal extends Component<Props, State> {
 
     refreshWorkout() {
         console.log('modal workout name = ', this.props.workoutName)
-        this.setState({muscleGroup: "unknown"})
+        this.setState({ muscleGroup: "unknown" })
         if (this.props.workoutName) {
             if (this.getWorkoutsByType() > 0) {
                 this.setState({
@@ -97,8 +97,8 @@ class WorkoutModal extends Component<Props, State> {
                             units: "lbs",
                             name: this.props.workoutName || "unknown"
                         }
-                    }], 
-                
+                    }],
+
                 })
 
             } else {
@@ -130,41 +130,40 @@ class WorkoutModal extends Component<Props, State> {
                 <div className="modal-content">
                     <div className="container">
                         <div className="box">
-                         
-                                <div className="columns">
-                                    <div className="column">
-                                        <h1 className="title has-text-centered workout-title">
-                                            {this.props.workoutName ? this.props.workoutName : "No workout chosen"}
-                                            <button className="button deleter" onClick={this.props.deleteAll}>
-                                                <span className="icon is-medium has-text-danger">
-                                                    <i className="fas fa-times"></i>
-                                                </span>
-                                    
-                                            </button>
-                                        </h1>
 
-                                        <div className="column">
-                                            <EditableMuscleGroup muscleGroup={this.getMuscleGroup()} 
-                                            updateGroup={(newName: string) => {
-                                                this.setState({muscleGroup: newName})
-                                                return this.props.updateMuscleGroup(this.props.workoutName, newName)} 
-                                            }/>
-                                        </div>
+                            <div className="columns is-multiline">
+                                <div className="column is-full">
+                                    <h1 className="title has-text-centered workout-title">
+                                        {this.props.workoutName ? this.props.workoutName : "No workout chosen"}
+                                        <button className="button deleter" onClick={this.props.deleteAll}>
+                                            <span className="icon is-large has-text-danger">
+                                                <i className="fas fa-times"></i>
+                                            </span>
 
-                                        <div className="columns ">
-                                            <WorkoutStatsDropDown workouts={this.getWorkoutsByType()} />
-                                        </div>
-
-                                    </div>
+                                        </button>
+                                    </h1>
+                                </div>
+                                <div className="column is-full">
+                                    <EditableMuscleGroup muscleGroup={this.getMuscleGroup()}
+                                        updateGroup={(newName: string) => {
+                                            this.setState({ muscleGroup: newName })
+                                            return this.props.updateMuscleGroup(this.props.workoutName, newName)
+                                        }
+                                        } />
+                                </div>
+                                <div className="column is-full">
+                                    <WorkoutStatsDropDown workouts={this.getWorkoutsByType()} />
                                 </div>
 
-                                {this.state.sets.map((v, idx) => {
-                                    let i = this.state.sets.length - idx - 1;
-                                    return <SetWeightGroup key={i} id={i} saveWorkout={this.saveWorkout} 
-                                        name={this.props.workoutName || "unknown"} />
-                                })}
+                            </div>
 
-                         
+                            {this.state.sets.map((v, idx) => {
+                                let i = this.state.sets.length - idx - 1;
+                                return <SetWeightGroup key={i} id={i} saveWorkout={this.saveWorkout}
+                                    name={this.props.workoutName || "unknown"} />
+                            })}
+
+
                         </div>
 
                     </div>

@@ -78,7 +78,7 @@ class SetWeightGroup extends Component<Props, State> {
 
                 <div className="field">
                     <div className="control">
-                        <button className="is-link button" onClick={this.saveWorkout}>Save</button>
+                        <button className="is-info is-fullwidth button" onClick={this.saveWorkout}>Save</button>
                     </div>
                 </div>
 

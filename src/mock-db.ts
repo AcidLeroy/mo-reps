@@ -7,7 +7,7 @@ export default function populateDb(db : LevelUp) : void {
     workouts.forEach(x => {
         let key = x.name +"-"+ uuidv1()  
         let value = x
-        p.push(db.put(key, value))
+        p.push(db.put(key, JSON.stringify(value)))
     })
 
 }
