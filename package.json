@@ -13,7 +13,7 @@
     "gaiadown-ts": "^1.0.5",
     "levelup": "^4.1.0",
     "memdown": "^4.1.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "ramda": "^0.26.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
